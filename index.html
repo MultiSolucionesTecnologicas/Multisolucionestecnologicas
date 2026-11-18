@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Multisoluciones Tecnológicas - Tienda</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<meta name="theme-color" content="#7c3aed">
+<style>
+  :root{
+    --bg:#f6f5fb; --surface:#ffffff; --text:#1c1b29; --muted:#6b6980;
+    --primary:#7c3aed; --accent:#ec4899; --green:#16a34a; --border:#e7e5f0;
+    color-scheme: light;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#121018; --surface:#1c1a26; --text:#f2f1f7; --muted:#a6a3bd; --border:#2d2a40;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{ --bg:#121018; --surface:#1c1a26; --text:#f2f1f7; --muted:#a6a3bd; --border:#2d2a40; color-scheme: dark; }
+  html{height:100%;}
+  *{box-sizing:border-box;}
+  body{margin:0; min-height:100%; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+  header{position:sticky; top:0; z-index:20; background:var(--surface); border-bottom:1px solid var(--border); padding:calc(12px + env(safe-area-inset-top,0px)) 16px 12px; display:flex; align-items:center; gap:12px;}
+  .logo{font-weight:800; font-size:1.05rem; background:linear-gradient(135deg,var(--primary),var(--accent)); -webkit-background-clip:text; background-clip:text; color:transparent; white-space:nowrap;}
+  .search{flex:1; position:relative;}
+  .search input{width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:.88rem;}
+  .cartBtn{position:relative; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:1.1rem; cursor:pointer;}
+  .cartBadge{position:absolute; top:-6px; right:-6px; background:var(--accent); color:white; font-size:.65rem; font-weight:700; border-radius:999px; padding:2px 6px; min-width:18px; text-align:center;}
+  .layout{display:flex; max-width:1100px; margin:0 auto; align-items:flex-start;}
+  aside{width:190px; flex-shrink:0; padding:16px 10px; position:sticky; top:62px; display:none;}
+  aside .catBtn{display:block; width:100%; text-align:left; padding:9px 12px; border-radius:8px; border:none; background:transparent; color:var(--text); font-size:.85rem; cursor:pointer; margin-bottom:2px;}
+  aside .catBtn.active{background:var(--primary); color:white; font-weight:600;}
+  .chips{display:flex; gap:8px; overflow-x:auto; padding:12px 16px 4px;}
+  .chips button{flex:0 0 auto; padding:7px 14px; border-radius:999px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:.8rem; cursor:pointer; white-space:nowrap;}
+  .chips button.active{background:var(--primary); color:white; border-color:var(--primary);}
+  main{flex:1; padding:12px 16px 90px; min-width:0;}
+  h2.section{font-size:1rem; margin:14px 2px 10px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px;}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; display:flex; flex-direction:column;}
+  .card .media{height:84px; display:flex; align-items:center; justify-content:center; font-size:2.1rem; background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(236,72,153,.12));}
+  .card .media img{width:100%;height:100%;object-fit:cover;}
+  .card .body{padding:10px 12px 12px; display:flex; flex-direction:column; gap:6px; flex:1;}
+  .card .cat{font-size:.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:.4px;}
+  .card .name{font-size:.84rem; font-weight:600; line-height:1.25; min-height:34px;}
+  .card .price{font-size:1.05rem; font-weight:800; color:var(--green);}
+  .card button.buy{margin-top:auto; background:var(--primary); color:white; border:none; border-radius:8px; padding:9px; font-weight:600; font-size:.82rem; cursor:pointer;}
+  .card button.buy.added{background:var(--green);}
+  .empty{text-align:center; color:var(--muted); padding:40px 10px;}
+  .cta{position:fixed; bottom:calc(14px + env(safe-area-inset-bottom,0px)); left:50%; transform:translateX(-50%); width:calc(100% - 32px); max-width:400px; z-index:20;}
+  .cta button{display:block; width:100%; text-align:center; background:var(--green); color:white; font-weight:700; padding:14px; border-radius:999px; border:none; box-shadow:0 6px 18px rgba(0,0,0,.25); font-size:.95rem; cursor:pointer; font-family:inherit;}
+  .modal{position:fixed; inset:0; background:rgba(0,0,0,.55); display:flex; align-items:flex-end; justify-content:center; z-index:50;}
+  .modal.hidden{display:none;}
+  .modalBox{background:var(--surface); width:100%; max-width:480px; border-radius:16px 16px 0 0; padding:18px; padding-bottom:calc(18px + env(safe-area-inset-bottom,0px)); max-height:70vh; overflow-y:auto;}
+  .modalHead{display:flex; justify-content:space-between; align-items:center; font-weight:700; margin-bottom:10px;}
+  .closeBtn{background:none; border:none; color:var(--muted); font-size:1.1rem; cursor:pointer;}
+  .prevRow{display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:.85rem;}
+  .prevRow button{background:none; border:none; color:#dc2626; cursor:pointer; font-size:.9rem;}
+  .prevTotal{text-align:right; font-weight:700; margin:10px 0; color:var(--green);}
+  .sendBtn{width:100%; background:var(--green); color:white; border:none; padding:12px; border-radius:999px; font-weight:700; cursor:pointer; font-family:inherit;}
+  @media (min-width:720px){ aside{display:block;} .chips{display:none;} }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" style="background:#0d0d14;border-radius:10px;padding:4px 10px;display:flex;align-items:center"><img src="logo.png" alt="Multisoluciones Tecnológicas" style="height:34px;mix-blend-mode:screen;display:block"></div>
+  <div class="search"><input id="searchInput" placeholder="Buscar producto..." oninput="renderGrid()"></div>
+  <button class="cartBtn" onclick="shareStore()" title="Compartir">🔗</button>
+  <button class="cartBtn" onclick="openPreview()">🛒<span class="cartBadge" id="cartCount" style="display:none">0</span></button>
+</header>
+<div style="text-align:center;font-size:.75rem;color:var(--muted);background:var(--surface);border-bottom:1px solid var(--border);padding:6px 10px;">🕐 Atención: Lunes a Domingo de 8:00am a 10:00pm</div>
+<div id="toast" style="display:none;position:fixed;top:calc(70px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:var(--green);color:white;padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:600;z-index:60;box-shadow:0 6px 18px rgba(0,0,0,.25);"></div>
+<div class="chips" id="chips"></div>
+<div class="layout">
+  <aside id="sidebar"></aside>
+  <main>
+    <div id="bestWrap"></div>
+    <h2 class="section" id="sectionTitle">Todos los productos</h2>
+    <div class="grid" id="grid"></div>
+  </main>
+</div>
+<div class="cta"><button id="ctaBtn" onclick="ctaClick()">💬 Escríbenos por WhatsApp</button></div>
+<div class="modal hidden" id="previewModal">
+  <div class="modalBox">
+    <div class="modalHead"><span>🛒 Tu pedido</span><button class="closeBtn" onclick="closePreview()">✕</button></div>
+    <div id="previewList"></div>
+    <div id="previewTotal" class="prevTotal"></div>
+    <button class="buy" style="width:100%;margin-bottom:8px;background:transparent;border:1px solid var(--border);color:var(--muted);" onclick="clearCart()">🗑️ Vaciar carrito</button>
+    <button class="sendBtn" onclick="sendOrder()">💬 Enviar pedido por WhatsApp</button>
+  </div>
+</div>
+
+<script>
+const WA_NUM = '573122794697';
+
+const CATALOG = [
+  { id:'wom', title:'Paquetes WOM', icon:'📶', items:[
+    {name:'2GB x 3 días', price:5000},{name:'3GB x 6 días', price:7000},{name:'9GB x 7 días', price:8500},
+    {name:'13.5GB x 10 días', price:12000},{name:'21GB x 15 días', price:13500},{name:'24GB x 20 días', price:17000},
+    {name:'31.5GB x 30 días', price:21000},{name:'42GB x 30 días', price:27000},{name:'Ilimitado x 15 días', price:28000},
+    {name:'Ilimitado 200GB x 30 días', price:48000},{name:'Ilimitado 600GB x 30 días', price:60000},
+  ]},
+  { id:'claro', title:'Paquetes Claro', icon:'📡', items:[
+    {name:'Internet ilimitado', price:32000},{name:'Ilimitado + minutos', price:38000},
+  ]},
+  { id:'streaming', title:'Streaming', icon:'🎬', items:[
+    {name:'Netflix Genérica 30d', price:7500},{name:'Netflix Original 30d', price:13500},{name:'Netflix Completa (5 pantallas)', price:54000},
+    {name:'Disney+ Estándar', price:3000},{name:'Disney+ Estándar + ESPN', price:4000},{name:'Disney+ Premium + 7 ESPN', price:8000},
+    {name:'Disney+ Estándar Completa', price:13000},{name:'Disney+ Premium Completa', price:18000},{name:'Disney+ Premium+ESPN Completa', price:40000},
+    {name:'HBO Max (perfil)', price:2000},{name:'HBO Max Platinum', price:5500},{name:'HBO Max Completa', price:7000},
+    {name:'Prime Video (perfil)', price:4000},{name:'Prime Video Completa', price:11500},
+    {name:'Spotify 1 mes', price:8000},{name:'Spotify 3 meses', price:27000},
+    {name:'YouTube Premium (3 meses)', price:7000},{name:'YouTube Premium 1 mes', price:10000},
+    {name:'Crunchyroll (perfil)', price:7000},{name:'Crunchyroll Completa', price:18000},
+    {name:'Paramount+ (perfil)', price:4000},{name:'Paramount+ Completa', price:22000},
+    {name:'Plex (perfil)', price:3000},{name:'Plex Completa', price:13500},
+    {name:'Vix (perfil)', price:3000},{name:'Vix Completa', price:12000},
+    {name:'Canva 30 días', price:5000},{name:'Canva 1 año', price:21000},
+    {name:'IPTV (perfil)', price:3500},{name:'IPTV Completa', price:7000},{name:'IPTV Smarters Pro', price:13500},
+    {name:'Apple TV+ (sin MLS)', price:5000},{name:'Apple TV+ (con MLS)', price:5500},
+    {name:'Magis TV', price:5500},{name:'Viki', price:4000},{name:'Universal+', price:5500},
+    {name:'ChatGPT Plus', price:23000},{name:'CapCut Pro', price:24000},
+  ]},
+  { id:'combos', title:'Combos', icon:'🎁', items:[
+    {name:'Combo 7 plataformas + Netflix', price:20000},{name:'Combo Premium 10 apps', price:27000},{name:'Combo Disney+Netflix+Win+', price:20000},
+  ]},
+  { id:'internet-local', title:'Internet Wifi', icon:'🌐', items:[
+    {name:'Internet WIFI todos los operadores', price:null},
+  ]},
+];
+const BESTSELLERS = ['wom-6','claro-0','combos-1','internet-local-0'];
+function getItemByKey(key){
+  const idx = key.lastIndexOf('-');
+  const catId = key.slice(0, idx);
+  const i = parseInt(key.slice(idx+1));
+  const cat = CATALOG.find(c=>c.id===catId);
+  if(!cat || !cat.items[i]) return null;
+  return {key, name:cat.items[i].name, price:cat.items[i].price, catTitle:cat.title, catId:cat.id, icon:cat.icon};
+}
+function cardHtml(it){
+  const added = !!SEL[it.key];
+  const bc = getBrandColor(it.name, it.catId);
+  const mediaStyle = bc ? ` style="background:linear-gradient(135deg, ${bc}, ${bc}bb); color:white;"` : '';
+  if(it.price===null){
+    return `<div class="card">
+      <div class="media"${mediaStyle}>${getIcon(it.name, it.icon)}</div>
+      <div class="body">
+        <span class="cat">${it.catTitle}</span>
+        <span class="name">${it.name}</span>
+        <span class="price" style="color:var(--muted);font-size:.8rem;">Precio según operador</span>
+        <button class="buy" onclick="consultar(\`${it.name}\`)">Consultar precio</button>
+      </div>
+    </div>`;
+  }
+  return `<div class="card">
+    <div class="media"${mediaStyle}>${getIcon(it.name, it.icon)}</div>
+    <div class="body">
+      <span class="cat">${it.catTitle}</span>
+      <span class="name">${it.name}</span>
+      <span class="price">$${fmt(it.price)}</span>
+      <button class="buy ${added?'added':''}" onclick="toggleBuy('${it.key}', \`${it.name}\`, ${it.price}, this)">${added?'✓ Agregado':'Comprar'}</button>
+    </div>
+  </div>`;
+}
+const ICONS = [
+  [/netflix/i,'🎬'],[/disney/i,'🏰'],[/hbo/i,'🎭'],[/prime/i,'📦'],[/spotify/i,'🎧'],[/youtube/i,'▶️'],
+  [/crunchyroll/i,'🍙'],[/paramount/i,'⭐'],[/plex/i,'🎥'],[/vix/i,'📺'],[/canva/i,'🎨'],[/iptv/i,'📡'],
+  [/apple ?tv/i,'🍎'],[/magis/i,'📡'],[/viki/i,'🏞️'],[/universal/i,'🎪'],[/chatgpt/i,'🤖'],[/capcut/i,'✂️'],
+];
+function getIcon(n, fallback){ for(const [re,ic] of ICONS){ if(re.test(n)) return ic; } return fallback; }
+const BRAND_COLORS = [
+  [/netflix/i,'#E50914'],[/disney/i,'#113CCF'],[/hbo|max/i,'#7B2FF7'],[/prime/i,'#00A8E1'],
+  [/spotify/i,'#1DB954'],[/youtube/i,'#FF0000'],[/crunchyroll/i,'#F47521'],[/paramount/i,'#0064FF'],
+  [/plex/i,'#E5A00D'],[/vix/i,'#E4007C'],[/canva/i,'#7D2AE8'],[/apple ?tv/i,'#333333'],
+];
+const CAT_COLORS = { wom:'#6E2585', claro:'#DA291C' };
+function getBrandColor(n, catId){
+  if(CAT_COLORS[catId]) return CAT_COLORS[catId];
+  for(const [re,c] of BRAND_COLORS){ if(re.test(n)) return c; }
+  return null;
+}
+
+let activeCat = 'all';
+let SEL = {};
+const fmt = n => n.toLocaleString('es-CO');
+
+function buildSidebar(){
+  const all = [{id:'all', title:'Todos', icon:'🗂️'}].concat(CATALOG.map(c=>({id:c.id,title:c.title,icon:c.icon})));
+  const html = all.map(c=>`<button class="catBtn ${c.id===activeCat?'active':''}" onclick="setCat('${c.id}')">${c.icon} ${c.title}</button>`).join('');
+  document.getElementById('sidebar').innerHTML = html;
+  document.getElementById('chips').innerHTML = all.map(c=>`<button class="${c.id===activeCat?'active':''}" onclick="setCat('${c.id}')">${c.icon} ${c.title}</button>`).join('');
+}
+function setCat(id){ activeCat = id; renderGrid(); buildSidebar(); }
+
+function flatItems(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  let out = [];
+  CATALOG.forEach(cat=>{
+    if(activeCat!=='all' && cat.id!==activeCat) return;
+    cat.items.forEach((it,i)=>{
+      if(q && !it.name.toLowerCase().includes(q)) return;
+      out.push({key:`${cat.id}-${i}`, name:it.name, price:it.price, catTitle:cat.title, catId:cat.id, icon:cat.icon});
+    });
+  });
+  return out;
+}
+function renderGrid(){
+  const items = flatItems();
+  const q = document.getElementById('searchInput').value.trim();
+  document.getElementById('sectionTitle').textContent = activeCat==='all' ? 'Todos los productos' : CATALOG.find(c=>c.id===activeCat).title;
+  const grid = document.getElementById('grid');
+  const showBest = activeCat==='all' && !q && BESTSELLERS.length>0;
+  let bestHtml = '';
+  if(showBest){
+    const bestItems = BESTSELLERS.map(getItemByKey).filter(Boolean);
+    bestHtml = `<h2 class="section">⭐ Más vendidos</h2><div class="grid">${bestItems.map(cardHtml).join('')}</div>`;
+  }
+  document.getElementById('bestWrap').innerHTML = bestHtml;
+  if(items.length===0){ grid.innerHTML = ''; grid.insertAdjacentHTML('afterend','<div class="empty" id="emptyMsg">No se encontraron productos.</div>'); return; }
+  document.getElementById('emptyMsg')?.remove();
+  grid.innerHTML = items.map(cardHtml).join('');
+}
+function consultar(name){
+  window.open(`https://wa.me/${WA_NUM}?text=${encodeURIComponent(`Hola, quiero consultar el precio de: ${name}`)}`,'_blank');
+}
+function toggleBuy(key, name, price, btn){
+  if(SEL[key]){ delete SEL[key]; btn.textContent='Comprar'; btn.classList.remove('added'); }
+  else{ SEL[key] = {name, price}; btn.textContent='✓ Agregado'; btn.classList.add('added'); }
+  updateCartBadge();
+}
+function updateCartBadge(){
+  const n = Object.keys(SEL).length;
+  const badge = document.getElementById('cartCount');
+  badge.textContent = n;
+  badge.style.display = n>0 ? 'block' : 'none';
+  const ctaBtn = document.getElementById('ctaBtn');
+  if(n===0){ ctaBtn.textContent = '💬 Escríbenos por WhatsApp'; }
+  else { const total = Object.values(SEL).reduce((a,i)=>a+i.price,0); ctaBtn.textContent = `🛒 Finalizar pedido (${n}) · $${fmt(total)}`; }
+}
+function clearCart(){
+  SEL = {};
+  updateCartBadge();
+  renderPreview();
+  renderGrid();
+}
+function openPreview(){ document.getElementById('previewModal').classList.remove('hidden'); renderPreview(); }
+function closePreview(){ document.getElementById('previewModal').classList.add('hidden'); }
+function renderPreview(){
+  const entries = Object.entries(SEL);
+  const list = document.getElementById('previewList');
+  if(entries.length===0){ list.innerHTML = '<p style="color:var(--muted);font-size:.85rem;">Aún no has agregado productos.</p>'; document.getElementById('previewTotal').textContent=''; return; }
+  list.innerHTML = entries.map(([k,i])=>`<div class="prevRow"><span>${i.name} · $${fmt(i.price)}</span><button onclick="removeItem('${k}')">✕</button></div>`).join('');
+  const total = entries.reduce((a,[,i])=>a+i.price,0);
+  document.getElementById('previewTotal').textContent = `Total: $${fmt(total)}`;
+}
+function removeItem(key){ delete SEL[key]; updateCartBadge(); renderPreview(); renderGrid(); }
+function waText(){
+  const entries = Object.entries(SEL);
+  const total = entries.reduce((a,[,i])=>a+i.price,0);
+  const lines = entries.map(([,i])=>`• ${i.name} - $${fmt(i.price)}`).join('\n');
+  return `Hola, quiero pedir:\n${lines}\n\nTotal: $${fmt(total)}`;
+}
+function ctaClick(){
+  if(Object.keys(SEL).length===0){ window.open(`https://wa.me/${WA_NUM}?text=${encodeURIComponent('Hola, quiero información sobre sus productos')}`,'_blank'); return; }
+  openPreview();
+}
+function sendOrder(){
+  window.open(`https://wa.me/${WA_NUM}?text=${encodeURIComponent(waText())}`,'_blank');
+  showToast('¡Pedido enviado! Te responderemos en breve ✅');
+  closePreview();
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(()=>{ t.style.display='none'; }, 3500);
+}
+function shareStore(){
+  const url = window.location.href;
+  if(navigator.share){
+    navigator.share({title:'Multisoluciones Tecnológicas', text:'Mira esta tienda de streaming e internet móvil', url});
+  } else {
+    navigator.clipboard.writeText(url).then(()=> showToast('Link copiado 📋'));
+  }
+}
+
+buildSidebar();
+renderGrid();
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+</script>
+</body>
+</html>
